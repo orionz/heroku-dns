@@ -2,7 +2,7 @@ module Heroku::Command
   # manage Heroku DNS
   #
   class Dns < BaseWithApp
-    # DNS
+    # dns
     #
     # herp derp
     #
