@@ -8,7 +8,6 @@ module Heroku::Command
     #
     def index
       domains = JSON.parse(resource("/dns").get)
-      puts domains.inspect
       display "You have #{domains.length} domains under management."
       domains.each do |d|
         display "  #{d["zone"]["name"]}"
@@ -40,8 +39,8 @@ module Heroku::Command
         result = JSON.parse(resource("/dns").post :domain => domain)
         display "Added #{domain}"
         display "Please update your dns servers to be:"
-        result["servers"].each do |server|
-          puts "  #{server}"
+        result["zone"]["servers"].each do |server|
+          display "  #{server}"
         end
       rescue RestClient::Forbidden => e
         display e.response
@@ -59,7 +58,6 @@ module Heroku::Command
       fail("Usage: heroku dns:add DOMAIN") unless domain
       result = resource("/dns/#{domain}").delete
       display "Deleting #{domain}"
-      puts result.inspect
     end
 
     # dns:map DOMAIN APP
@@ -67,12 +65,16 @@ module Heroku::Command
     # Map a domain to an app
     #
     def map
-      domain = args.shift.downcase rescue nil
-      app = args.shift.downcase rescue nil
-      fail("Usage: heroku dns:map DOMAIN APP") unless domain and app
-      result = resource("/dns/#{domain}/map/#{app}").put({})
-      display "Mapping #{domain} to #{app}"
-      puts result.inspect
+      begin
+        domain = args.shift.downcase rescue nil
+        app = args.shift.downcase rescue nil
+        fail("Usage: heroku dns:map DOMAIN APP") unless domain and app
+        result = resource("/dns/#{domain}/map/#{app}").put({})
+        display "Mapping #{domain} to #{app}"
+      rescue Object => e
+        puts e.class.inspect
+        puts e.message
+      end
     end
 
     # dns:unmap DOMAIN
@@ -80,11 +82,15 @@ module Heroku::Command
     # Unmap a domain
     #
     def unmap
-      domain = args.shift.downcase rescue nil
-      fail("Usage: heroku dns:unmap DOMAIN") unless domain
-      result = resource("/dns/#{domain}/map/").put({})
-      display "Unmapping #{domain}"
-      puts result.inspect
+      begin
+        domain = args.shift.downcase rescue nil
+        fail("Usage: heroku dns:unmap DOMAIN") unless domain
+        result = resource("/dns/#{domain}/map/").put({})
+        display "Unmapping #{domain}"
+      rescue Object => e
+        puts e.class.inspect
+        puts e.message
+      end
     end
 
     private
@@ -92,7 +98,6 @@ module Heroku::Command
     def resource(path, options={})
       uri = "https://dnsx.herokuapp.com"
       RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-      puts "RestClient::Resource.new '#{uri}#{path}', #{options.merge(:user => user, :password => password).inspect}"
       RestClient::Resource.new "#{uri}#{path}", options.merge(:user => user, :password => password)
     end
 
