@@ -1,3 +1,5 @@
+require 'pp'
+
 module Heroku::Command
   # manage Heroku DNS
   #
@@ -73,7 +75,7 @@ module Heroku::Command
         display "Mapping #{domain} to #{app}"
       rescue Object => e
         puts e.class.inspect
-        puts e.message
+        puts "  #{e.response}"
       end
     end
 
@@ -89,7 +91,7 @@ module Heroku::Command
         display "Unmapping #{domain}"
       rescue Object => e
         puts e.class.inspect
-        puts e.message
+        puts "  #{e.response}"
       end
     end
 
