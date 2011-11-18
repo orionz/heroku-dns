@@ -72,7 +72,7 @@ module Heroku::Command
         app = args.shift.downcase rescue nil
         fail("Usage: heroku dns:map DOMAIN APP") unless domain and app
         result = resource("/dns/#{domain}/map/#{app}").put({})
-        display "Mapping #{domain} to #{app}"
+        display "Mapping #{domain} to #{app}.  It will take a few minutes for the DNS to update."
       rescue Object => e
         puts e.class.inspect
         puts "  #{e.response}"
@@ -88,7 +88,7 @@ module Heroku::Command
         domain = args.shift.downcase rescue nil
         fail("Usage: heroku dns:unmap DOMAIN") unless domain
         result = resource("/dns/#{domain}/map/").put({})
-        display "Unmapping #{domain}"
+        display "Unmapping #{domain}."
       rescue Object => e
         puts e.class.inspect
         puts "  #{e.response}"
